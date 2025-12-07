@@ -17,6 +17,19 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  // Fetch current user
+  const fetchUser = useCallback(async () => {
+    try {
+      const response = await api.get('/auth/me');
+      setUser(response.data.user);
+    } catch (error) {
+      setToken(null);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Set token in axios headers
   useEffect(() => {
     if (token) {
@@ -30,19 +43,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token, fetchUser]);
-
-  // Fetch current user
-  const fetchUser = useCallback(async () => {
-    try {
-      const response = await api.get('/auth/me');
-      setUser(response.data.user);
-    } catch (error) {
-      setToken(null);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   // Login
   const login = useCallback(async (email, password) => {
