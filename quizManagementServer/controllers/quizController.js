@@ -1,19 +1,36 @@
 const Quiz = require('../models/quizSchema');
 
+// Validation helpers
+const validateQuizData = (title, description, questions) => {
+  if (!title || !title.trim()) {
+    return 'Title is required';
+  }
+  if (!description || !description.trim()) {
+    return 'Description is required';
+  }
+  if (!Array.isArray(questions)) {
+    return 'Questions must be an array';
+  }
+  if (questions.length === 0) {
+    return 'At least one question is required';
+  }
+  return null;
+};
+
 const createQuiz = async (req, res) => {
   try {
-    // Extract { title, description, questions } from req.body
     const { title, description, questions } = req.body;
 
     // Validate required fields
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Title and description are required' });
+    const validationError = validateQuizData(title, description, questions);
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
     }
 
     // Save quiz to MongoDB
     const quiz = new Quiz({
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
       questions: questions || []
     });
 
@@ -55,10 +72,42 @@ const getQuizById = async (req, res) => {
   }
 };
 
+// Helper function to calculate quiz results
+const calculateQuizResults = (quiz, answers) => {
+  let score = 0;
+  const total = quiz.questions.length;
+  const review = [];
+
+  quiz.questions.forEach((question, index) => {
+    const selectedAnswer = answers[index] || '';
+    const correctAnswer = question.correctAnswer;
+    const isCorrect = selectedAnswer.trim() === correctAnswer.trim();
+
+    if (isCorrect) {
+      score++;
+    }
+
+    review.push({
+      questionText: question.questionText,
+      selectedAnswer: selectedAnswer || 'No answer provided',
+      correctAnswer: correctAnswer,
+      isCorrect: isCorrect
+    });
+  });
+
+  const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+
+  return { score, total, percentage, review };
+};
+
 const submitQuiz = async (req, res) => {
   try {
-    // Receive submitted answers array from frontend → req.body.answers
     const { answers } = req.body;
+
+    // Validate answers
+    if (!Array.isArray(answers)) {
+      return res.status(400).json({ error: 'Answers must be an array' });
+    }
 
     // Load quiz by ID
     const quiz = await Quiz.findById(req.params.id);
@@ -67,40 +116,18 @@ const submitQuiz = async (req, res) => {
       return res.status(404).json({ error: 'Quiz not found' });
     }
 
-    let score = 0;
-    const total = quiz.questions.length;
-    const review = [];
-
-    // For each question:
-    quiz.questions.forEach((question, index) => {
-      const selectedAnswer = answers[index];
-      const correctAnswer = question.correctAnswer;
-      const isCorrect = selectedAnswer === correctAnswer;
-
-      // Calculate score
-      if (isCorrect) {
-        score++;
-      }
-
-      // Build review array
-      review.push({
-        questionText: question.questionText,
-        selectedAnswer: selectedAnswer || 'No answer provided',
-        correctAnswer: correctAnswer,
-        isCorrect: isCorrect
+    // Validate answers length matches questions
+    if (answers.length !== quiz.questions.length) {
+      return res.status(400).json({ 
+        error: `Expected ${quiz.questions.length} answers, received ${answers.length}` 
       });
-    });
+    }
 
-    // Calculate percentage
-    const percentage = Math.round((score / total) * 100);
+    // Calculate results
+    const results = calculateQuizResults(quiz, answers);
 
-    // Return: { score, total, percentage, review }
-    res.status(200).json({
-      score,
-      total,
-      percentage,
-      review
-    });
+    // Return results
+    res.status(200).json(results);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1,5 +1,17 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+
+// Helper function to get result card styling
+const getResultCardClass = (isCorrect) => {
+  return isCorrect
+    ? 'bg-green-50 border-green-200'
+    : 'bg-red-50 border-red-200';
+};
+
+// Helper function to get status styling
+const getStatusClass = (isCorrect) => {
+  return isCorrect ? 'text-green-600' : 'text-red-600';
+};
 
 function Result() {
   const location = useLocation();
@@ -8,15 +20,18 @@ function Result() {
 
   useEffect(() => {
     if (!resultData) {
-      navigate('/');
+      navigate('/', { replace: true });
     }
   }, [resultData, navigate]);
+
+  // Memoize result data
+  const { score, total, percentage, review } = useMemo(() => {
+    return resultData || { score: 0, total: 0, percentage: 0, review: [] };
+  }, [resultData]);
 
   if (!resultData) {
     return null;
   }
-
-  const { score, total, percentage, review } = resultData;
 
   return (
     <div className="max-w-3xl mx-auto mt-10 px-4 animate-fade-in">
@@ -37,11 +52,7 @@ function Result() {
           {review.map((item, index) => (
             <div
               key={index}
-              className={`rounded-xl p-6 border-2 ${
-                item.isCorrect
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-red-50 border-red-200'
-              } animate-fade-in`}
+              className={`rounded-xl p-6 border-2 ${getResultCardClass(item.isCorrect)} animate-fade-in`}
             >
               <h3 className="text-lg font-semibold mb-2">Question {index + 1}</h3>
               <p className="mb-3 font-medium">{item.questionText}</p>
@@ -52,7 +63,7 @@ function Result() {
                 <p className="text-sm">
                   <span className="font-semibold">Correct Answer:</span> {item.correctAnswer}
                 </p>
-                <p className={`font-semibold ${item.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`font-semibold ${getStatusClass(item.isCorrect)}`}>
                   {item.isCorrect ? '✓ Correct' : '✗ Incorrect'}
                 </p>
               </div>

@@ -14,7 +14,7 @@ Implement route definitions and controller signatures for:
 - Fetching quiz by ID
 - Submitting quiz answers
 
-No authentication or role-based access is implemented per assignment requirement.
+No authentication or role-based access is implemented per assignment requirement but we will do it if time permits.
 
 ## Phase 3 — Backend Business Logic & Scoring Engine
 Implement end-to-end logic:
@@ -51,6 +51,8 @@ Add UX refinements:
 - Responsive design
 - Cleanup of unused code
 - want to add back button also when admin is on creating quiz page
+
+-- now added the authentication for creating the quiz only admin can create quiz only.
 
 This 5-phase architecture ensures clarity, maintainability, and quick execution
 within the assignment timeline.

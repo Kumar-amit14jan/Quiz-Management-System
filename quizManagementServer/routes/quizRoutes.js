@@ -6,12 +6,15 @@ const {
   getQuizById,
   submitQuiz
 } = require('../controllers/quizController');
+const { protect, adminOnly } = require('../middleware/authMiddleware');
 
-// Placeholder route handlers
-router.post('/create', createQuiz);
+// Public routes
 router.get('/', getAllQuizzes);
 router.get('/:id', getQuizById);
 router.post('/:id/submit', submitQuiz);
+
+// Protected admin routes
+router.post('/create', protect, adminOnly, createQuiz);
 
 module.exports = router;
 
