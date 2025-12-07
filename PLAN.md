@@ -50,6 +50,7 @@ Add UX refinements:
 - Smooth transitions
 - Responsive design
 - Cleanup of unused code
+- want to add back button also when admin is on creating quiz page
 
 This 5-phase architecture ensures clarity, maintainability, and quick execution
 within the assignment timeline.

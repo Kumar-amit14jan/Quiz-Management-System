@@ -6,6 +6,7 @@ const quizRoutes = require('./routes/quizRoutes');
 const app = express();
 
 // Middleware
+// for developement we are useing *
 app.use(cors({
   origin: '*', // Allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
