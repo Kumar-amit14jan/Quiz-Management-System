@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../config/axios';
 
 function CreateQuiz() {
@@ -125,6 +125,14 @@ function CreateQuiz() {
 
   return (
     <div className="max-w-3xl mx-auto mt-10 px-4 animate-fade-in">
+      <div className="mb-4">
+        <Link 
+          to="/" 
+          className="text-purple-600 hover:text-purple-800 text-sm font-medium transition-colors inline-flex items-center"
+        >
+          ← Back to Home
+        </Link>
+      </div>
       <h1 className="text-4xl font-bold mb-4">Create New Quiz</h1>
       
       <div className="bg-white rounded-xl shadow-lg p-8">
